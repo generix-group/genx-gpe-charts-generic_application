@@ -1,0 +1,15 @@
+{{- if and .Values.vaultAgent.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "generic-application.fullname" . }}-vault-agent
+  labels:
+    {{- include "generic-application.labels" . | nindent 4 }}
+data:
+  config-init.hcl: |
+    {{- include "generic-application.vaultAgentConfig" (merge (dict "configInit" true) .) | indent 4 }}
+  config.hcl: |
+    {{- include "generic-application.vaultAgentConfig" (merge (dict "configInit" false) .) | indent 4 }}
+...
+{{- end }}

@@ -1,0 +1,171 @@
+{{- $controller := .Values.pod.controller }}
+---
+apiVersion: apps/v1
+kind: {{ $controller }}
+metadata:
+  name: {{ include "generic-application.fullname" . }}
+  labels:
+    {{- include "generic-application.labels" . | nindent 4 }}
+spec:
+  {{- if or (eq $controller "Deployment") (eq $controller "StatefulSet") }}
+    {{- if not .Values.horizontalPodAutoscaler.enabled }}
+      {{- with .Values.pod.replicas }}
+  replicas: {{ . }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- if eq $controller "StatefulSet" }}
+    {{- with .Values.pod.podManagementPolicy }}
+  podManagementPolicy: {{ . }}
+    {{- end }}
+  serviceName: {{ ternary (include "generic-application.serviceName" .) (printf "%s-%s" (include "generic-application.fullname" $) .Values.pod.serviceName) (empty .Values.pod.serviceName) }}
+  {{- end }}
+  {{- with .Values.pod.strategy }}
+    {{- if eq $controller "Deployment" }}
+  strategy:
+    {{- else }}
+  updateStrategy:
+    {{- end }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.pod.minReadySeconds }}
+  minReadySeconds: {{ . }}
+  {{- end }}
+  {{- with .Values.pod.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ . }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "generic-application.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- include "generic-application.podAnnotations" . | nindent 8 }}
+      labels:
+        {{- include "generic-application.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.pod.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "generic-application.serviceAccountName" . }}
+      {{- with .Values.pod.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pod.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+      {{- end }}
+      {{- if or .Values.configMap .Values.pod.volumes }}
+      volumes:
+        {{- if .Values.configMap }}
+        - name: config
+          configMap:
+            name: {{ include "generic-application.fullname" . }}-config
+        {{- end }}
+        {{- with .Values.pod.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.pod.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ include "generic-application.fullname" . }}
+          {{- with .Values.pod.container.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ include "generic-application.container.image" (dict "imageRoot" .Values.pod.container.image ) }}"
+          imagePullPolicy: {{ .Values.pod.container.image.pullPolicy }}
+          {{- with .Values.pod.container.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.pod.container.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if or .Values.vault.engines.db.enabled .Values.vault.engines.kv.enabled .Values.pod.container.env }}
+          env:
+            {{- if or .Values.vault.engines.db.enabled .Values.vault.engines.kv.enabled }}
+            - name: VAULT_ADDR
+              value: {{ .Values.vault.address }}
+              {{- if .Values.vault.token }}
+            - name: VAULT_TOKEN
+              value: {{ .Values.vault.token }}
+              {{- end }}
+              {{- if .Values.vault.engines.kv.enabled }}
+            - name: VAULT_SECRET_PATH
+              value: {{ include "generic-application.vaultSecretPath" . }}
+              {{- end }}
+            {{- end }}
+            {{- with .Values.pod.container.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.services }}
+          ports:
+            {{- range . }}
+              {{- range .ports }}
+            - name: {{ .name }}
+              containerPort: {{ default .port .targetPort }}
+              protocol: {{ default "TCP" .protocol }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.pod.container.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.pod.container.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.pod.container.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.pod.container.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if or .Values.configMap .Values.pod.container.volumeMounts }}
+          volumeMounts:
+            {{- if .Values.configMap }}
+            - name: config
+              readOnly: true
+              mountPath: {{ .Values.configPath }}
+            {{- end }}
+            {{- with .Values.pod.container.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- end }}
+{{- with .Values.pod.additionalContainers }}{{ toYaml . | indent 8 }}{{ end }}
+      {{- with .Values.pod.dnsPolicy }}
+      dnsPolicy: {{ . }}
+      {{- end }}
+      {{- with .Values.pod.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pod.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pod.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pod.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- if eq $controller "StatefulSet" }}
+    {{- with .Values.pod.volumeClaimTemplates }}
+  volumeClaimTemplates:
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+...

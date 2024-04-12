@@ -1,0 +1,36 @@
+{{- if .Values.services }}
+  {{- range $service_index, $service := .Values.services }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "generic-application.serviceName" (merge (dict "serviceIndex" $service_index) $) }}
+  labels:
+    {{- include "generic-application.labels" $ | nindent 4 }}
+  {{- with $service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ $service.type }}
+  {{- if eq $service.type "LoadBalancer" }}
+    {{- if $service.loadBalancerIP }}
+  loadBalancerIP: {{ $service.loadBalancerIP }}
+    {{- end }}
+    {{- if $service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml $service.loadBalancerSourceRanges | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  {{- if $service.clusterIP }}
+  clusterIP: {{ $service.clusterIP }}
+  {{- end }}
+  {{- with $service.ports }}
+  ports:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  selector:
+    {{- include "generic-application.selectorLabels" $ | nindent 4 }}
+...
+  {{- end }}
+{{- end }}

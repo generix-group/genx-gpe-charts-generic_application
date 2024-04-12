@@ -1,0 +1,306 @@
+# nameOverride -- overrides the generated chart name. Defaults to .Chart.Name
+nameOverride:
+
+# fullnameOverride -- overrides the generated release name. Defaults to .Release.Name
+fullnameOverride:
+
+# pod
+pod:
+  # pod.controller -- controller to use to manage Pods (Deployment, StatefulSet, or DaemonSet)
+  controller: Deployment
+
+  # pod.replicas
+  # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#replicas
+  replicas:
+
+  # pod.podManagementPolicy -- (StatefulSet only)
+  # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy:
+
+  # pod.serviceName -- (StatefulSet only)
+  serviceName:
+
+  # pod.podAnnotations
+  annotations: {}
+
+  # pod.strategy
+  strategy: {}
+
+  # pod.minReadySeconds
+  minReadySeconds:
+
+  # pod.revisionHistoryLimit
+  # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy
+  revisionHistoryLimit:
+
+  # pod.imagePullSecrets -- image pull secret to use for registry authentication
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  imagePullSecrets: []
+  # - name: <secretName>
+
+  # pod.securityContext
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  securityContext: {}
+    # fsGroup: 2000
+
+  # pod.terminationGracePeriodSeconds
+  terminationGracePeriodSeconds:
+
+  # pod.volumes
+  volumes: []
+
+  # pod.initContainers
+  initContainers: []
+
+  # pod.container
+  container:
+    # pod.container.image
+    image:
+      # pod.container.image.registry
+      registry: docker.io
+
+      # pod.container.image.repository
+      repository: nginx
+
+      # pod.container.image.tag
+      tag:
+
+      # pod.container.image.pullPolicy
+      # Ref: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
+      pullPolicy: IfNotPresent
+
+    # pod.container.securityContext
+    # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+    securityContext: {}
+      # capabilities:
+      #   drop:
+      #   - ALL
+      # readOnlyRootFilesystem: true
+      # runAsNonRoot: true
+      # runAsUser: 1000
+
+    # pod.container.command
+    command: []
+
+    # pod.container.args
+    args: []
+
+    # pod.container.env
+    env: []
+      # - name: <key>
+      #   value: <value>
+
+    # pod.container.startupProbe
+    startupProbe: {}
+
+    # pod.container.livenessProbe
+    livenessProbe: {}
+
+    # pod.container.readinessProbe
+    readinessProbe: {}
+
+    # pod.container.resources
+    resources: {}
+      # We usually recommend not to specify default resources and to leave this as a conscious
+      # choice for the user. This also increases chances charts run on environments with little
+      # resources, such as Minikube. If you do want to specify resources, uncomment the following
+      # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+      # limits:
+      #   cpu: 100m
+      #   memory: 128Mi
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+
+    # pod.container.volumeMounts
+    volumeMounts: []
+
+  # pod.additionalContainers
+  additionalContainers: []
+
+  # pod.volumeClaimTemplates -- (StatefulSet only)
+  volumeClaimTemplates: []
+
+  # pod.dnsPolicy
+  # Ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy
+  dnsPolicy:
+
+  # pod.dnsConfig
+  # Ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+  dnsConfig: {}
+    # nameservers:
+    #   - 1.2.3.4
+    # searches:
+    #   - ns1.svc.cluster-domain.example
+    #   - my.dns.search.suffix
+    # options:
+    #   - name: ndots
+    #     value: "2"
+    #   - name: edns0
+
+  # pod.nodeSelector
+  # Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+
+  # pod.tolerations
+  # Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+
+  # pod.affinity
+  # Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+# configMap
+# Ref: https://kubernetes.io/docs/concepts/configuration/configmap/
+configMap: {}
+
+# configPath
+configPath: /conf
+
+# serviceAccount
+serviceAccount:
+  # serviceAccount.create -- specifies whether a service account should be created
+  create: true
+
+  # serviceAccount.automount -- automatically mount a ServiceAccount's API credentials?
+  automount: true
+
+  # serviceAccount.annotations -- annotations to add to the service account
+  annotations: {}
+
+  # serviceAccount.name -- name of the service account to use
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+# services
+services: []
+  # - annotations: {}
+  #   name: web
+  #   type: ClusterIP
+  #   ports:
+  #     - name: http
+  #       appProtocol: http
+  #       protocol: TCP
+  #       port: 80
+  #       targetPort: 80
+  #   loadBalancerIP:
+  #   loadBalancerSourceRanges: []
+  #   clusterIP:
+
+# ingress
+ingress:
+  # ingress.enabled
+  enabled: false
+
+  # ingress.className
+  className:
+
+  # ingress.annotations
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+
+  # ingress.hosts
+  hosts: []
+    # - host: acme.local
+    #   paths:
+    #     - path: /
+    #       pathType: ImplementationSpecific
+    #       backend:
+    #         service:
+    #           name: web
+    #           port:
+    #             number: 80
+
+  # ingress.tls
+  tls: []
+    # - secretName: acme-tls
+    #   hosts:
+    #     - acme.local
+
+# horizontalPodAutoscaler -- (Deployments and StatefulSets only)
+horizontalPodAutoscaler:
+  # horizontalPodAutoscaler.enabled
+  enabled: false
+
+  # horizontalPodAutoscaler.minReplicas
+  minReplicas: 1
+
+  # horizontalPodAutoscaler.maxReplicas
+  maxReplicas: 100
+
+  # horizontalPodAutoscaler.targetCPUUtilizationPercentage
+  targetCPUUtilizationPercentage: 80
+
+  # horizontalPodAutoscaler.targetMemoryUtilizationPercentage
+  # targetMemoryUtilizationPercentage: 80
+
+# podDisruptionBudget
+# Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+podDisruptionBudget:
+  # podDisruptionBudget.enabled
+  enabled: false
+
+  # podDisruptionBudget.minAvailable
+  minAvailable:
+
+  # podDisruptionBudget.maxUnavailable
+  maxUnavailable:
+
+# vault
+vault:
+  # vault.address
+  address: http://vault.vault.svc.cluster.local.:8200
+
+  # vault.token
+  token:
+
+  # vault.role
+  # If not set, a name is generated using the fullname template
+  role:
+
+  # vault.engines
+  engines:
+    # vault.engines.db
+    db:
+      # vault.engines.db.enabled
+      enabled: false
+
+    # vault.engines.kv
+    kv:
+      # vault.engines.kv.enabled
+      enabled: false
+
+      # vault.engines.kv.secretPath
+      # If not set, a path is generated using the fullname template
+      secretPath:
+
+# vaultAgent
+vaultAgent:
+  # vaultAgent.enabled
+  enabled: false
+
+  # vaultAgent.securityContext
+  securityContext:
+    # vaultAgent.securityContext.runAsUser
+    runAsUser:
+
+    # vaultAgent.securityContext.runAsGroup
+    runAsGroup:
+
+  # vaultAgent.db
+  db:
+    # vaultAgent.db.template
+    template:
+      # vaultAgent.db.template.type -- (generic or quarkus)
+      type: generic
+
+      # vaultAgent.db.template.dataSources
+      dataSources: []
+        # - id: mydb
+        #   name: mydb-dev
+        #   engine: postgresql
+        #   hostname: localhost
+        #   port: 5432
+        #   options: sslmode=disable
+        #   mode: rw
