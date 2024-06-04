@@ -292,7 +292,7 @@ vaultAgent:
   db:
     # vaultAgent.db.template
     template:
-      # vaultAgent.db.template.type -- (generic or quarkus)
+      # vaultAgent.db.template.type -- (generic, quarkus, or solochain)
       type: generic
 
       # vaultAgent.db.template.dataSources

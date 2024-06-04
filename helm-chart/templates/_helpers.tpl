@@ -184,6 +184,19 @@ quarkus.datasource.{{ $id }}.jdbc.url=jdbc:{{ .engine }}://{{ .hostname }}:{{ .p
 EOF
   destination = "/vault/secrets/application.properties"
 }
+  {{- else if eq .Values.vaultAgent.db.template.type "solochain" }}
+template {
+  contents = <<EOF
+  {{- range .Values.vaultAgent.db.template.dataSources }}
+DBUrl=jdbc:{{ .engine }}://{{ .hostname }}:{{ .port }}/{{ .name }}{{ ternary (printf "?%s" .options) "" (not (empty .options)) }}
+{{`{{- with secret `}}"database/creds/{{ .hostname | trimSuffix "." }}-{{ .port }}-{{ .name }}-{{ .mode }}"{{` }}`}}
+DBUserName={{`{{ .Data.username }}`}}
+DBPassword={{`{{ .Data.password }}`}}
+{{`{{- end }}`}}
+  {{- end }}
+EOF
+  destination = "/vault/secrets/application.properties"
+}
   {{- end }}
 {{- end }}
 {{- end }}
