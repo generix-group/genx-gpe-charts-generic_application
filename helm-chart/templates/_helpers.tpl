@@ -42,12 +42,16 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
+
 {{/*
 Selector labels
 */}}
 {{- define "generic-application.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "generic-application.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- if eq .Values.pod.workloadIdentity true }}
+azure.workload.identity/use: "true"
+{{- end }}
 {{- end }}
 
 {{/*

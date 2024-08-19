@@ -150,6 +150,8 @@ pod:
   # Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
 
+  # pod.workloadIdentity
+  workloadIdentity:
 # configMap
 # Ref: https://kubernetes.io/docs/concepts/configuration/configmap/
 configMap: {}

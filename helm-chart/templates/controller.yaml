@@ -9,8 +9,8 @@ metadata:
 spec:
   {{- if or (eq $controller "Deployment") (eq $controller "StatefulSet") }}
     {{- if not .Values.horizontalPodAutoscaler.enabled }}
-      {{- with .Values.pod.replicas }}
-  replicas: {{ . }}
+      {{- if .Values.pod.replicas | quote }}
+  replicas: {{ .Values.pod.replicas }}
       {{- end }}
     {{- end }}
   {{- end }}
